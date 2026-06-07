@@ -1,0 +1,177 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f5f8;
+  color: #20242c;
+}
+
+.contenedor {
+  width: min(960px, 92%);
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+.encabezado {
+  margin-bottom: 24px;
+}
+
+.encabezado h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.encabezado p {
+  margin: 0;
+  color: #5a6270;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dce1e8;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.panel h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: #303846;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #c7cfda;
+  border-radius: 6px;
+  font: inherit;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #2f80ed;
+  border-color: #2f80ed;
+}
+
+button {
+  border: 0;
+  border-radius: 6px;
+  padding: 11px 16px;
+  background: #2f80ed;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d6fd8;
+}
+
+.formulario button {
+  align-self: end;
+}
+
+.boton-secundario {
+  background: #20242c;
+}
+
+.boton-secundario:hover {
+  background: #333b48;
+}
+
+.mensaje {
+  min-height: 22px;
+  margin: 14px 0 0;
+  font-weight: 700;
+}
+
+.mensaje.ok {
+  color: #137333;
+}
+
+.mensaje.error {
+  color: #c5221f;
+}
+
+.titulo-lista {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.titulo-lista h2 {
+  margin: 0;
+}
+
+.lista-pedidos {
+  display: grid;
+  gap: 12px;
+}
+
+.pedido {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  padding: 14px;
+  border: 1px solid #e0e5ec;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.pedido h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.pedido p {
+  margin: 4px 0 0;
+  color: #5a6270;
+}
+
+.estado {
+  align-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff4cc;
+  color: #6f5200;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.vacio {
+  margin: 0;
+  color: #5a6270;
+}
+
+@media (max-width: 700px) {
+  .formulario,
+  .pedido {
+    grid-template-columns: 1fr;
+  }
+
+  .titulo-lista {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

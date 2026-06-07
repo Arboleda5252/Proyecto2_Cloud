@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos de Videojuegos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="contenedor">
+    <section class="encabezado">
+      <h1>Pedidos de Videojuegos</h1>
+      <p>Registra pedidos y consulta la lista guardada en el backend.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Nuevo pedido</h2>
+
+      <form id="formulario-pedido" class="formulario">
+        <label>
+          Jugador
+          <input type="text" id="jugador" required>
+        </label>
+
+        <label>
+          Videojuego
+          <input type="text" id="videojuego" required>
+        </label>
+
+        <label>
+          Plataforma
+          <select id="plataforma" required>
+            <option value="">Selecciona una plataforma</option>
+            <option value="PC">PC</option>
+            <option value="PlayStation">PlayStation</option>
+            <option value="Xbox">Xbox</option>
+            <option value="Nintendo Switch">Nintendo Switch</option>
+          </select>
+        </label>
+
+        <label>
+          Cantidad
+          <input type="number" id="cantidad" min="1" value="1" required>
+        </label>
+
+        <button type="submit">Guardar pedido</button>
+      </form>
+
+      <p id="mensaje" class="mensaje"></p>
+    </section>
+
+    <section class="panel">
+      <div class="titulo-lista">
+        <h2>Pedidos registrados</h2>
+        <button type="button" id="btn-recargar" class="boton-secundario">Recargar</button>
+      </div>
+
+      <div id="lista-pedidos" class="lista-pedidos"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
