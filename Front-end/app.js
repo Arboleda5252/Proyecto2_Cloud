@@ -84,9 +84,10 @@ async function guardarPedido(evento) {
     document.getElementById("cantidad").value = 1;
     mostrarMensaje(resultado.mensaje, "ok");
     cargarPedidos();
-  } catch (error) {
-    mostrarMensaje("No se pudo conectar con el backend.", "error");
-  }
+  }  catch (error) {
+  console.error("Error al guardar pedido:", error);
+  mostrarMensaje("No se pudo conectar con el backend.", "error");
+}
 }
 
 formulario.addEventListener("submit", guardarPedido);
