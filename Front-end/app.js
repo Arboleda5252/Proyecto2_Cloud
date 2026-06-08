@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://0hndtloiyf.execute-api.us-east-2.amazonaws.com";
 
 const formulario = document.getElementById("formulario-pedido");
 const listaPedidos = document.getElementById("lista-pedidos");
