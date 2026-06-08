@@ -1,0 +1,224 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Infraestructura Cloud 
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 10
+    MemorySize: 128
+    Architectures:
+      - x86_64
+
+Resources:
+
+  # =========================
+  # DYNAMODB
+  # =========================
+
+  PedidosGamerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: PedidosGamer
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      Tags:
+        - Key: Project
+          Value: PedidosGamer
+
+  # =========================
+  # LAMBDA + API GATEWAY
+  # =========================
+
+  PedidosGamerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: gamer-api
+      CodeUri: ../lambda/
+      Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PedidosGamerTable
+      Events:
+        GetPedidos:
+          Type: HttpApi
+          Properties:
+            Path: /pedidos
+            Method: GET
+
+        PostPedidos:
+          Type: HttpApi
+          Properties:
+            Path: /pedidos
+            Method: POST
+
+        OptionsPedidos:
+          Type: HttpApi
+          Properties:
+            Path: /pedidos
+            Method: OPTIONS
+
+        GetPedidoById:
+          Type: HttpApi
+          Properties:
+            Path: /pedidos/{id}
+            Method: GET
+
+        OptionsPedidoById:
+          Type: HttpApi
+          Properties:
+            Path: /pedidos/{id}
+            Method: OPTIONS
+
+  # =========================
+  # S3 FRONTEND
+  # =========================
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: pedidos-gamer
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      Tags:
+        - Key: Project
+          Value: PedidosGamer
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${FrontendBucket.Arn}/*"
+
+  # =========================
+  # VPC
+  # =========================
+
+  ProyectoGamerVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: proyectoGamer-vpc
+
+  ProyectoGamerInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: proyectoGamer-igw
+
+  ProyectoGamerAttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref ProyectoGamerVPC
+      InternetGatewayId: !Ref ProyectoGamerInternetGateway
+
+  ProyectoGamerPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ProyectoGamerVPC
+      CidrBlock: 10.0.0.0/20
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs ''
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: proyectoGamer-subnet-public1
+
+  ProyectoGamerRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ProyectoGamerVPC
+      Tags:
+        - Key: Name
+          Value: proyectoGamer-public-rt
+
+  ProyectoGamerPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ProyectoGamerAttachGateway
+    Properties:
+      RouteTableId: !Ref ProyectoGamerRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ProyectoGamerInternetGateway
+
+  ProyectoGamerSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref ProyectoGamerPublicSubnet
+      RouteTableId: !Ref ProyectoGamerRouteTable
+
+  # =========================
+  # EC2 DE PRUEBA
+  # =========================
+
+  ProyectoGamerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Grupo de seguridad para instancia EC2 de prueba
+      VpcId: !Ref ProyectoGamerVPC
+      Tags:
+        - Key: Name
+          Value: pedidos-gamer-sg
+
+  ProyectoGamerEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Sub "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      SubnetId: !Ref ProyectoGamerPublicSubnet
+      SecurityGroupIds:
+        - !Ref ProyectoGamerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: pedidos-gamer-ec2-test
+        - Key: Project
+          Value: PedidosGamer
+
+Outputs:
+
+  ApiUrl:
+    Description: URL base de la API Gateway HTTP
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+
+  FrontendWebsiteUrl:
+    Description: URL del sitio web estático en S3
+    Value: !GetAtt FrontendBucket.WebsiteURL
+
+  DynamoDBTableName:
+    Description: Nombre de la tabla DynamoDB
+    Value: !Ref PedidosGamerTable
+
+  LambdaFunctionName:
+    Description: Nombre de la función Lambda
+    Value: !Ref PedidosGamerFunction
+
+  VPCId:
+    Description: ID de la VPC creada
+    Value: !Ref ProyectoGamerVPC
+
+  EC2InstanceId:
+    Description: ID de la instancia EC2 de prueba
+    Value: !Ref ProyectoGamerEC2

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://0hndtloiyf.execute-api.us-east-2.amazonaws.com";
 
 const formulario = document.getElementById("formulario-pedido");
 const listaPedidos = document.getElementById("lista-pedidos");
@@ -84,9 +84,10 @@ async function guardarPedido(evento) {
     document.getElementById("cantidad").value = 1;
     mostrarMensaje(resultado.mensaje, "ok");
     cargarPedidos();
-  } catch (error) {
-    mostrarMensaje("No se pudo conectar con el backend.", "error");
-  }
+  }  catch (error) {
+  console.error("Error al guardar pedido:", error);
+  mostrarMensaje("No se pudo conectar con el backend.", "error");
+}
 }
 
 formulario.addEventListener("submit", guardarPedido);
